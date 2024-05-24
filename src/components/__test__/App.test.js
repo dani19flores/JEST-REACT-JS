@@ -1,10 +1,12 @@
 import React from 'react';
-import { render, act } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, act, screen, fireEvent } from '@testing-library/react';
 import App from '../../App';
 import { fetchUsers } from '../api';
 
+import axios from 'axios';
+
 jest.mock('../api');
+jest.mock('axios');
 
 let mockUsers = [
   { id: 1, name: 'John' },
@@ -37,7 +39,7 @@ describe('App', () => {
 
     await act(async () => {
       const addButton = container.getByText('Add User');
-      userEvent.click(addButton);
+      fireEvent.click(addButton);
     });
 
     await act(async () => {
@@ -47,5 +49,33 @@ describe('App', () => {
     newUsers.forEach(user => {
       expect(container.getByText(user.name)).toBeInTheDocument();
     });
+
+
+    await expect(fetchUsers()).resolves.toEqual(mockUsers);
+
   });
+
+  it('renders with initial empty state', () => {
+    const { container } = render(<App />);
+    expect(container.querySelector('ul').children.length).toBe(0);
+  });
+
+  it('adds multiple users correctly', async () => {
+    
+    render(<App />);
+
+    const addButton = screen.getByText('Add User');
+    fireEvent.click(addButton);
+    fireEvent.click(addButton);
+    expect(screen.getByText('User 1')).toBeInTheDocument();
+    expect(screen.getByText('User 2')).toBeInTheDocument();
+  });
+
+  it('Should return a list of users', async () => {
+    const users = await fetchUsers();
+    expect(users).toHaveLength(4);
+    expect(users[0]).toHaveProperty('id');
+    expect(users[0]).toHaveProperty('name');
+  });
+
 });

@@ -13,14 +13,17 @@ function App() {
     getUsers();
   }, []);
 
-  const handleAddUser = (newUser) => {
-    setUsers(prevUsers => [...prevUsers, newUser]);
+  const handleAddUser = () => {
+    setUsers(prevUsers => [
+      ...prevUsers,
+      { id: prevUsers.length + 1, name: `User ${prevUsers.length + 1}` }
+    ]);
   };
 
   return (
     <div>
       <h1>User List</h1>
-      <button onClick={() => handleAddUser({ id: users.length + 1, name: `User ${users.length + 1}` })}>Add User</button>
+      <button onClick={handleAddUser}>Add User</button>
       <ul>
         {users.map(user => (
           <li key={user.id}>{user.name}</li>
